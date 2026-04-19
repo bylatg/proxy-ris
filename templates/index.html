@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trade Code NaebBankaNet</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 24px;
+      background: #f7f7f7;
+      color: #222;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    textarea, input, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      font-family: monospace;
+    }
+    button {
+      padding: 8px 14px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    .rule-meta {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #f2f2f2;
+      padding: 10px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .small {
+      font-size: 13px;
+      color: #666;
+    }
+  </style>
+  <script>
+    function syncMode(selectEl, prefix) {
+      const mode = selectEl.value;
+      const regexBlock = document.getElementById(prefix + '-regex-block');
+      const jsonBlock = document.getElementById(prefix + '-json-block');
+
+      if (mode === 'regex_replace') {
+        regexBlock.style.display = 'block';
+        jsonBlock.style.display = 'none';
+      } else {
+        regexBlock.style.display = 'none';
+        jsonBlock.style.display = 'block';
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Trade Code NaebBankaNet</h1>
+
+  <div class="card">
+    <h2>Добавить правило</h2>
+    <form method="post" action="/add">
+      <div class="row">
+        <div>
+          <label>Enabled</label>
+          <select name="enabled">
+            <option value="true" selected>true</option>
+            <option value="false">false</option>
+          </select>
+        </div>
+        <div>
+          <label>Mode</label>
+          <select name="mode" onchange="syncMode(this, 'new')">
+            <option value="regex_replace" selected>regex_replace</option>
+            <option value="json_update">json_update</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Host</label>
+      <input name="host" placeholder="api.example.com">
+
+      <label>Path contains</label>
+      <input name="path_contains" placeholder="/v1/profile">
+
+      <div id="new-regex-block">
+        <label>Replacements JSON</label>
+        <textarea name="replacements_json" rows="10">[
+  {
+    "pattern": "\"status\":\\s*\"OK\"",
+    "replace": "\"status\": \"TEST_OK\""
+  }
+]</textarea>
+        <div class="small">Должен быть JSON-массив объектов вида pattern/replace/flags.</div>
+      </div>
+
+      <div id="new-json-block" style="display:none;">
+        <label>Updates JSON</label>
+        <textarea name="updates_json" rows="8">{
+  "profile.name": "Test User"
+}</textarea>
+        <div class="small">Должен быть JSON-объект.</div>
+      </div>
+
+      <button type="submit">Добавить</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Текущий rules.json</h2>
+    <p><a href="/raw" target="_blank">Открыть raw</a></p>
+  </div>
+
+  <h2>Правила</h2>
+
+  {% for rule in rules %}
+    <div class="card">
+      <div class="rule-meta">
+        <strong>#{{ loop.index0 }}</strong>
+        | enabled=<strong>{{ rule.enabled }}</strong>
+        | mode=<strong>{{ rule.mode }}</strong>
+        | host=<strong>{{ rule.host }}</strong>
+        | path_contains=<strong>{{ rule.path_contains }}</strong>
+      </div>
+
+      <form method="post" action="/update/{{ loop.index0 }}">
+        <div class="row">
+          <div>
+            <label>Enabled</label>
+            <select name="enabled">
+              <option value="true" {% if rule.enabled %}selected{% endif %}>true</option>
+              <option value="false" {% if not rule.enabled %}selected{% endif %}>false</option>
+            </select>
+          </div>
+          <div>
+            <label>Mode</label>
+            <select name="mode" onchange="syncMode(this, 'rule-{{ loop.index0 }}')">
+              <option value="regex_replace" {% if rule.mode == 'regex_replace' %}selected{% endif %}>regex_replace</option>
+              <option value="json_update" {% if rule.mode == 'json_update' %}selected{% endif %}>json_update</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Host</label>
+        <input name="host" value="{{ rule.host }}">
+
+        <label>Path contains</label>
+        <input name="path_contains" value="{{ rule.path_contains }}">
+
+        <div id="rule-{{ loop.index0 }}-regex-block" {% if rule.mode != 'regex_replace' %}style="display:none;"{% endif %}>
+          <label>Replacements JSON</label>
+          <textarea name="replacements_json" rows="10">{{ rule.replacements | default([], true) | tojson(indent=2) }}</textarea>
+        </div>
+
+        <div id="rule-{{ loop.index0 }}-json-block" {% if rule.mode != 'json_update' %}style="display:none;"{% endif %}>
+          <label>Updates JSON</label>
+          <textarea name="updates_json" rows="8">{{ rule.updates | default({}, true) | tojson(indent=2) }}</textarea>
+        </div>
+
+        <button type="submit">Сохранить</button>
+      </form>
+
+      <form method="post" action="/toggle/{{ loop.index0 }}" style="display:inline;">
+        <button type="submit">
+          {% if rule.enabled %}Выключить{% else %}Включить{% endif %}
+        </button>
+      </form>
+
+      <form method="post" action="/delete/{{ loop.index0 }}" style="display:inline;">
+        <button type="submit" onclick="return confirm('Удалить правило?')">Удалить</button>
+      </form>
+    </div>
+  {% else %}
+    <div class="card">
+      Правил пока нет.
+    </div>
+  {% endfor %}
+</body>
+</html>

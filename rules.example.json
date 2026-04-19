@@ -1,0 +1,14 @@
+[
+  {
+    "enabled": true,
+    "host": "api.example.com",
+    "path_contains": "/v1/profile",
+    "mode": "regex_replace",
+    "replacements": [
+      {
+        "pattern": "\"status\":\\s*\"OK\"",
+        "replace": "\"status\": \"TEST_OK\""
+      }
+    ]
+  }
+]
