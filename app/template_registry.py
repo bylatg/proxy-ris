@@ -11,7 +11,7 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
             "priority": 100,
             "http_method": "GET",
             "host_pattern": r"^.*\.t-bank-app\.ru",
-            "path_pattern": r"^/v1/profile",  r"^/(userinfo/userinfo|v1/accounts_light|app/bank/messenger/conversations|app/bank/messenger/userInfo|api/prefill/profile/contact/)$"
+            "path_pattern": r"^/(userinfo/userinfo|v1/accounts_light|app/bank/messenger/conversations|app/bank/messenger/userInfo|api/prefill/profile/contact/)$",
             "content_type_pattern": r"application/json",
             "action_type": "regex_replace",
         },
@@ -68,7 +68,8 @@ APP_TEMPLATE_MAP: dict[str, list[str]] = {
 
 
 def get_templates_for_app_slug(app_slug: str) -> list[dict[str, Any]]:
-    codes = APP_TEMPLATE_MAP.get(app_slug, APP_TEMPLATE_MAP["default"])
+    normalized_slug = (app_slug or "").strip().lower()
+    codes = APP_TEMPLATE_MAP.get(normalized_slug) or APP_TEMPLATE_MAP.get("default", [])
     return [TEMPLATE_REGISTRY[code] for code in codes if code in TEMPLATE_REGISTRY]
 
 
@@ -79,12 +80,12 @@ def build_rule_from_template(template_code: str, form_data: dict[str, Any]) -> d
 
     defaults = template.get("system_defaults", {})
 
-    if template_code == "tbank_replace_name":
+    if template_code == "replace_name":
         old_value = str(form_data["old_value"]).strip()
         new_value = str(form_data["new_value"]).strip()
 
         return {
-            "name": f"Replace name: {old_value} -> {new_value}",
+            "name": f"Replace text: {old_value} -> {new_value}",
             "description": template.get("description"),
             "enabled": True,
             "priority": defaults.get("priority", 100),
@@ -103,4 +104,27 @@ def build_rule_from_template(template_code: str, form_data: dict[str, Any]) -> d
             },
         }
 
+    if template_code == "replace_amount":
+        old_value = str(form_data["old_value"]).strip()
+        new_value = str(form_data["new_value"]).strip()
+
+        return {
+        "name": f"Replace amount: {old_value} -> {new_value}",
+        "description": template.get("description"),
+        "enabled": True,
+        "priority": defaults.get("priority", 100),
+        "http_method": defaults.get("http_method"),
+        "host_pattern": defaults.get("host_pattern"),
+        "path_pattern": defaults.get("path_pattern"),
+        "content_type_pattern": defaults.get("content_type_pattern"),
+        "action_type": defaults.get("action_type", "regex_replace"),
+        "action_config": {
+            "replacements": [
+                {
+                    "pattern": rf'"value"\s*:\s*{re.escape(old_value)}',
+                    "replace": f'"value": {new_value}',
+                }
+            ]
+        },
+    }
     raise ValueError(f"Unknown template_code: {template_code}")
