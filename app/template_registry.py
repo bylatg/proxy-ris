@@ -1,7 +1,7 @@
 import re
 from typing import Any
-
-
+# ^/(userinfo|v1/accounts_light|app/bank/messenger/conversations|app/bank/messenger/userInfo|api/prefill/profile/contact)(/.*)?$
+# ^.*\.t-bank-app\.ru$
 TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
     "replace_name": {
         "code": "replace_name",
@@ -10,8 +10,8 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
         "system_defaults": {
             "priority": 100,
             "http_method": "GET",
-            "host_pattern": r"^.*\.t-bank-app\.ru",
-            "path_pattern": r"^/(userinfo/userinfo|v1/accounts_light|app/bank/messenger/conversations|app/bank/messenger/userInfo|api/prefill/profile/contact/)$",
+            "host_pattern": r"^.*\.t-bank-app\.ru$",
+            "path_pattern": r"^/(userinfo|v1/accounts_light|app/bank/messenger/conversations|app/bank/messenger/userInfo|api/prefill/profile/contact)(/.*)?$",
             "content_type_pattern": r"application/json",
             "action_type": "regex_replace",
         },
@@ -57,11 +57,38 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
             },
         ],
     },
+    "replace_sup": {
+        "code": "replace_sup",
+        "name": "Замена значений в чате с поддержкой",
+        "description": "Замена значений в чате с поддержкой.",
+        "system_defaults": {
+            "priority": 100,
+            "http_method": "GET",
+            "host_pattern": r"^tm\.t-bank-app\.ru$",
+            "path_pattern": r"^/app/bank/messenger/conversations(?:/.*)?$",
+            "content_type_pattern": r"application/json.*",
+            "action_type": "regex_replace",
+        },
+        "fields": [
+            {
+                "name": "old_value",
+                "label": "Старое число",
+                "type": "text",
+                "required": True,
+            },
+            {
+                "name": "new_value",
+                "label": "Новое число",
+                "type": "text",
+                "required": True,
+            },
+        ],
+    },
 }
 
 
 APP_TEMPLATE_MAP: dict[str, list[str]] = {
-    "tbank": ["replace_name", "replace_amount"],
+    "tbank": ["replace_name", "replace_amount", "replace_sup"],
     # "tbank": ["replace_name", "replace_amount"],
     # "myshop": ["replace_name"],
 }
@@ -127,4 +154,27 @@ def build_rule_from_template(template_code: str, form_data: dict[str, Any]) -> d
             ]
         },
     }
+    if template_code == "replace_sup":
+        old_value = str(form_data["old_value"]).strip()
+        new_value = str(form_data["new_value"]).strip()
+
+        return {
+            "name": f"Replace amount: {old_value} -> {new_value}",
+            "description": template.get("description"),
+            "enabled": True,
+            "priority": defaults.get("priority", 100),
+            "http_method": defaults.get("http_method"),
+            "host_pattern": defaults.get("host_pattern"),
+            "path_pattern": defaults.get("path_pattern"),
+            "content_type_pattern": defaults.get("content_type_pattern"),
+            "action_type": defaults.get("action_type", "regex_replace"),
+            "action_config": {
+                "replacements": [
+                    {
+                        "pattern": re.escape(old_value),
+                        "replace": new_value,
+                    }
+                ]
+            },
+        }
     raise ValueError(f"Unknown template_code: {template_code}")
