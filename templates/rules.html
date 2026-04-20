@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Rules</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+        input, textarea, select { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        button { padding: 8px 14px; }
+        pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        a { text-decoration: none; }
+    </style>
+</head>
+<body>
+    <p><a href="/apps/">← Назад к приложениям</a></p>
+    <p>
+  <a href="/apps/{{ app_obj.id }}/templates/">Шаблоны правил</a>
+</p>
+    <h1>Правила приложения: {{ app_obj.name }}</h1>
+    <p><strong>Slug:</strong> {{ app_obj.slug }}</p>
+    <p><strong>Description:</strong> {{ app_obj.description or "-" }}</p>
+
+    <div class="card">
+        <h2>Добавить правило</h2>
+        <form method="post" action="/apps/{{ app_obj.id }}/rules/create">
+            <label>Name</label>
+            <input type="text" name="name" required>
+
+            <label>Description</label>
+            <textarea name="description" rows="3"></textarea>
+
+            <label>Enabled</label>
+            <select name="enabled">
+                <option value="true" selected>true</option>
+                <option value="false">false</option>
+            </select>
+
+            <label>Priority</label>
+            <input type="number" name="priority" value="100" required>
+
+            <label>HTTP method</label>
+            <input type="text" name="http_method" placeholder="GET">
+
+            <label>Host pattern</label>
+            <input type="text" name="host_pattern" placeholder="^api\.example\.com$">
+
+            <label>Path pattern</label>
+            <input type="text" name="path_pattern" placeholder="^/v1/profile">
+
+            <label>Content-Type pattern</label>
+            <input type="text" name="content_type_pattern" placeholder="application/json">
+
+            <label>Action type</label>
+            <select name="action_type">
+                <option value="regex_replace">regex_replace</option>
+                <option value="json_update">json_update</option>
+                <option value="mock_response">mock_response</option>
+            </select>
+
+            <label>Action config JSON</label>
+            <textarea name="action_config_json" rows="12">{
+  "replacements": [
+    {
+      "pattern": "\"status\":\\s*\"OK\"",
+      "replace": "\"status\": \"TEST_OK\""
+    }
+  ]
+}</textarea>
+
+            <button type="submit">Создать правило</button>
+        </form>
+    </div>
+
+    <h2>Список правил</h2>
+
+    {% if rules %}
+        {% for rule in rules %}
+            <div class="card">
+                <h3>{{ rule.name }}</h3>
+                <p><strong>ID:</strong> {{ rule.id }}</p>
+                <p><strong>Enabled:</strong> {{ rule.enabled }}</p>
+                <p><strong>Priority:</strong> {{ rule.priority }}</p>
+                <p><strong>Method:</strong> {{ rule.http_method or "-" }}</p>
+                <p><strong>Host pattern:</strong> {{ rule.host_pattern or "-" }}</p>
+                <p><strong>Path pattern:</strong> {{ rule.path_pattern or "-" }}</p>
+                <p><strong>Content-Type pattern:</strong> {{ rule.content_type_pattern or "-" }}</p>
+                <p><strong>Action type:</strong> {{ rule.action_type }}</p>
+                <p><strong>Description:</strong> {{ rule.description or "-" }}</p>
+
+                <h4>Action config</h4>
+                <pre>{{ rule.action_config | tojson(indent=2) }}</pre>
+
+                <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/toggle" style="display:inline;">
+                    <button type="submit">
+                        {% if rule.enabled %}Выключить{% else %}Включить{% endif %}
+                    </button>
+                </form>
+
+                <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/delete" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Удалить правило?')">Удалить</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Правил пока нет.</p>
+    {% endif %}
+</body>
+</html>

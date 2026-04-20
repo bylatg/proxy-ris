@@ -1,6 +1,6 @@
-# app/routers/auth.py
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -9,17 +9,16 @@ from app.models.user import User
 from app.security import verify_password
 
 router = APIRouter()
+templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/login")
-def login_page():
-    return """
-    <form method="post">
-      <input name="username" placeholder="username">
-      <input name="password" type="password" placeholder="password">
-      <button type="submit">Login</button>
-    </form>
-    """
+@router.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={},
+    )
 
 
 @router.post("/login")

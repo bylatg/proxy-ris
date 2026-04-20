@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     app_env: str = "dev"
     secret_key: str = "change-me"
     database_url: str = "postgresql+psycopg://proxy_admin:proxy_admin@127.0.0.1:5432/proxy_admin"
-
+    internal_api_token: str = "oh9HPBSXyccTU5cJjEHEAv2nnDrqJhet"
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

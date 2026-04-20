@@ -6,4 +6,7 @@ psycopg[binary]
 jinja2
 python-multipart
 pydantic-settings
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+itsdangerous
+requests

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Apps</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+        input, textarea { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        button { padding: 8px 14px; }
+        a { text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>Приложения</h1>
+
+    <p>Пользователь: <strong>{{ current_user.username }}</strong></p>
+
+    <form method="post" action="/logout" style="margin-bottom: 24px;">
+        <button type="submit">Выйти</button>
+    </form>
+
+    <div class="card">
+        <h2>Добавить приложение</h2>
+        <form method="post" action="/apps/create">
+            <label>Название</label>
+            <input type="text" name="name" required>
+
+            <label>Slug</label>
+            <input type="text" name="slug" required>
+
+            <label>Описание</label>
+            <textarea name="description" rows="4"></textarea>
+
+            <button type="submit">Создать</button>
+        </form>
+    </div>
+
+    <h2>Список</h2>
+
+    {% if apps %}
+        {% for app in apps %}
+            <div class="card">
+                <h3>{{ app.name }}</h3>
+                <p><strong>Slug:</strong> {{ app.slug }}</p>
+                <p><strong>Description:</strong> {{ app.description or "-" }}</p>
+                <p><strong>ID:</strong> {{ app.id }}</p>
+                <p><strong>Active:</strong> {{ app.is_active }}</p>
+                <a href="/apps/{{ app.id }}/rules">Открыть правила</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Приложений пока нет.</p>
+    {% endif %}
+</body>
+</html>

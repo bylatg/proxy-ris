@@ -16,7 +16,7 @@ def main():
         user = User(
             email="admin@example.com",
             username="admin",
-            password_hash=hash_password("123admin123"),
+            password_hash=hash_password("123ad"),
             is_admin=True,
             is_active=True,
         )

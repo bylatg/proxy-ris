@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Templates</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <p><a href="/apps/{{ app_obj.id }}/rules/">← Назад к правилам</a></p>
+
+  <h1>Шаблоны для {{ app_obj.name }}</h1>
+
+  {% for item in template_items %}
+    <div class="card">
+      <h3>{{ item.name }}</h3>
+      <p>{{ item.description }}</p>
+      <a href="/apps/{{ app_obj.id }}/templates/{{ item.code }}">Открыть шаблон</a>
+    </div>
+  {% else %}
+    <p>Шаблонов пока нет.</p>
+  {% endfor %}
+</body>
+</html>

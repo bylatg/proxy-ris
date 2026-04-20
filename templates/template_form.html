@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ template_item.name }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    input, textarea { width: 100%; padding: 8px; margin-bottom: 12px; box-sizing: border-box; }
+    button { padding: 8px 14px; }
+  </style>
+</head>
+<body>
+  <p><a href="/apps/{{ app_obj.id }}/templates/">← Назад к шаблонам</a></p>
+
+  <h1>{{ template_item.name }}</h1>
+  <p>{{ template_item.description }}</p>
+
+  <form method="post" action="/apps/{{ app_obj.id }}/templates/{{ template_item.code }}/create">
+    {% for field in template_item.fields %}
+      <label>{{ field.label }}</label>
+      <input
+        type="text"
+        name="{{ field.name }}"
+        value="{{ field.default if field.default is defined else '' }}"
+        {% if field.required %}required{% endif %}
+      >
+    {% endfor %}
+
+    <button type="submit">Создать правило</button>
+  </form>
+</body>
+</html>
