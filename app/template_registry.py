@@ -66,6 +66,7 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
             "http_method": "GET",
             "host_pattern": r"^api\.t-bank-app\.ru$",
             "path_pattern": r"^/v1/operations.*",
+            "content_type_pattern": r"application/json.*",
             "action_type": "regex_replace",
         },
         "fields": [
@@ -92,7 +93,6 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
             "http_method": "GET",
             "host_pattern": r"^tm\.t-bank-app\.ru$",
             "path_pattern": r"^/app/bank/messenger/conversations(?:/.*)?$",
-            "content_type_pattern": r"application/json.*",
             "action_type": "regex_replace",
         },
         "fields": [
