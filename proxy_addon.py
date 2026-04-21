@@ -16,7 +16,33 @@ _rules_cache: dict[str, Any] = {
     "fetched_at": 0,
     "rules": [],
 }
+DEBUG_PATH_CONTAINS = "account_group_requisites"
+def debug_flow(flow):
+    req_method = flow.request.method
+    req_host = flow.request.host
+    req_path = flow.request.path
+    resp_status = flow.response.status_code
+    resp_content_type = flow.response.headers.get("content-type", "")
 
+    print("=" * 80)
+    print("[debug] matched path filter")
+    print(f"[debug] method={req_method}")
+    print(f"[debug] host={req_host}")
+    print(f"[debug] path={req_path}")
+    print(f"[debug] status={resp_status}")
+    print(f"[debug] content-type={resp_content_type}")
+
+    try:
+        body_preview = flow.response.get_text(strict=False)
+    except Exception as e:
+        body_preview = f"<failed to decode body: {e}>"
+
+    if len(body_preview) > 2000:
+        body_preview = body_preview[:2000] + "\n...<truncated>..."
+
+    print("[debug] body:")
+    print(body_preview)
+    print("=" * 80)
 
 def fetch_rules() -> list[dict[str, Any]]:
     global _rules_cache
@@ -75,21 +101,38 @@ def match_rule(flow, rule: dict[str, Any]) -> bool:
     path_pattern = rule.get("path_pattern")
     content_type_pattern = rule.get("content_type_pattern")
 
-    if http_method and flow.request.method.upper() != str(http_method).upper():
+    req_method = flow.request.method.upper()
+    req_host = flow.request.host
+    req_path = flow.request.path
+    resp_content_type = flow.response.headers.get("content-type", "")
+
+    # print(
+     #   f"[proxy] checking rule id={rule.get('id')} "
+     #   f"name={rule.get('name')!r} "
+     #   f"method={req_method} host={req_host} path={req_path} content-type={resp_content_type}"
+    #)
+
+    if http_method and req_method != str(http_method).upper():
+      #  print(f"[proxy]   method mismatch: expected={http_method} got={req_method}")
         return False
 
-    if not match_regex(host_pattern, flow.request.host):
+    if not match_regex(host_pattern, req_host):
+       # print(f"[proxy]   host mismatch: pattern={host_pattern!r} host={req_host!r}")
         return False
 
-    if not match_regex(path_pattern, flow.request.path):
+    if not match_regex(path_pattern, req_path):
+       # print(f"[proxy]   path mismatch: pattern={path_pattern!r} path={req_path!r}")
         return False
 
-    content_type = flow.response.headers.get("content-type", "")
-    if not match_regex(content_type_pattern, content_type):
+    if not match_regex(content_type_pattern, resp_content_type):
+       # print(
+       #     f"[proxy]   content-type mismatch: "
+       #     f"pattern={content_type_pattern!r} content-type={resp_content_type!r}"
+       # )
         return False
 
+   # print(f"[proxy]   rule matched id={rule.get('id')} name={rule.get('name')!r}")
     return True
-
 
 def set_nested_value(obj: Any, dotted_key: str, value: Any) -> bool:
     parts = dotted_key.split(".")
@@ -188,7 +231,6 @@ def apply_json_update(text: str, action_config: dict[str, Any]) -> tuple[str, bo
 
     return json.dumps(data, ensure_ascii=False), True
 
-
 def apply_mock_response(flow, action_config: dict[str, Any]) -> bool:
     status_code = action_config.get("status_code", 200)
     content_type = action_config.get("content_type", "application/json")
@@ -198,6 +240,11 @@ def apply_mock_response(flow, action_config: dict[str, Any]) -> bool:
         body_text = json.dumps(body, ensure_ascii=False)
     else:
         body_text = str(body)
+
+    print(
+        f"[proxy] applying mock_response: "
+        f"status_code={status_code} content_type={content_type}"
+    )
 
     flow.response.status_code = int(status_code)
     flow.response.text = body_text
@@ -209,10 +256,13 @@ def response(flow):
     if flow.response is None:
         return
 
+    if DEBUG_PATH_CONTAINS and DEBUG_PATH_CONTAINS in flow.request.path:
+        debug_flow(flow)
+
     rules = fetch_rules()
     if not rules:
+        print("[proxy] no rules loaded")
         return
-
     original_text = flow.response.get_text(strict=False)
     updated_text = original_text
     changed = False
