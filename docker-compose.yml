@@ -56,11 +56,18 @@ services:
       PROXY_INTERNAL_TOKEN: ${INTERNAL_API_TOKEN}
       PROXY_APP_ID: "1"
       PROXY_CACHE_TTL_SECONDS: "5"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     command: >
       mitmweb
       --set block_global=false
       --set listen_host=0.0.0.0
-      --web-host 0.0.0.0
+      --set listen_port=8080
+      --set web_host=0.0.0.0
+      --set web_port=8081
+      --set web_password=RabotaAdmin123
       -s /home/mitmproxy/project/proxy_addon.py
 
 volumes:
