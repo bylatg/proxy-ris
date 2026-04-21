@@ -5,8 +5,8 @@ from typing import Any
 TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
     "replace_name": {
         "code": "replace_name",
-        "name": "Замена имени",
-        "description": "Заменяет имя во всех местах",
+        "name": "Замена данных в профиле (email / телефон , имя)",
+        "description": "Заменяет данные в профиле ",
         "system_defaults": {
             "priority": 100,
             "http_method": "GET",
@@ -32,8 +32,8 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
     },
     "replace_amount": {
         "code": "replace_amount",
-        "name": "Замена значений только в истории",
-        "description": "Заменяет  значение на другое только в истории.",
+        "name": "Замена значений суммы только в истории операции",
+        "description": "Заменяет  суммы на другое только в истории.",
         "system_defaults": {
             "priority": 100,
             "http_method": "GET",
@@ -52,6 +52,32 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
             {
                 "name": "new_value",
                 "label": "Новое число",
+                "type": "text",
+                "required": True,
+            },
+        ],
+    },
+    "replace_history": {
+        "code": "replace_history",
+        "name": "Замена совпадения только в истории операции",
+        "description": "Заменяет  совпадения на другое только в истории.",
+        "system_defaults": {
+            "priority": 100,
+            "http_method": "GET",
+            "host_pattern": r"^api\.t-bank-app\.ru$",
+            "path_pattern": r"^/v1/operations.*",
+            "action_type": "regex_replace",
+        },
+        "fields": [
+            {
+                "name": "old_value",
+                "label": "Старое значение",
+                "type": "text",
+                "required": True,
+            },
+            {
+                "name": "new_value",
+                "label": "Новое значение",
                 "type": "text",
                 "required": True,
             },
@@ -88,7 +114,7 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
 
 
 APP_TEMPLATE_MAP: dict[str, list[str]] = {
-    "tbank": ["replace_name", "replace_amount", "replace_sup"],
+    "tbank": ["replace_name", "replace_amount", "replace_sup", "replace_history"],
     # "tbank": ["replace_name", "replace_amount"],
     # "myshop": ["replace_name"],
 }
@@ -155,6 +181,29 @@ def build_rule_from_template(template_code: str, form_data: dict[str, Any]) -> d
         },
     }
     if template_code == "replace_sup":
+        old_value = str(form_data["old_value"]).strip()
+        new_value = str(form_data["new_value"]).strip()
+
+        return {
+            "name": f"Replace amount: {old_value} -> {new_value}",
+            "description": template.get("description"),
+            "enabled": True,
+            "priority": defaults.get("priority", 100),
+            "http_method": defaults.get("http_method"),
+            "host_pattern": defaults.get("host_pattern"),
+            "path_pattern": defaults.get("path_pattern"),
+            "content_type_pattern": defaults.get("content_type_pattern"),
+            "action_type": defaults.get("action_type", "regex_replace"),
+            "action_config": {
+                "replacements": [
+                    {
+                        "pattern": re.escape(old_value),
+                        "replace": new_value,
+                    }
+                ]
+            },
+        }
+    if template_code == "replace_history":
         old_value = str(form_data["old_value"]).strip()
         new_value = str(form_data["new_value"]).strip()
 
