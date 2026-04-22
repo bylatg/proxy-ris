@@ -10,19 +10,19 @@ def main():
     try:
         existing = db.scalar(select(User).where(User.username == "admin"))
         if existing:
-            print("Admin already exists")
+            print("User already exists")
             return
 
         user = User(
-            email="admin@example.com",
-            username="admin",
-            password_hash=hash_password("123ad"),
-            is_admin=True,
+            email="dimas@example.com",
+            username="Dimas",
+            password_hash=hash_password("@maybachov"),
+            is_admin=False,
             is_active=True,
         )
         db.add(user)
         db.commit()
-        print("Admin created: admin / admin123")
+        print("User created: admin / admin123")
     finally:
         db.close()
 
