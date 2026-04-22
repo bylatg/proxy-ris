@@ -45,7 +45,10 @@ def rules_list(
         .where(Rule.app_id == app_id)
         .order_by(Rule.priority.asc(), Rule.id.desc())
     ).all()
-
+    rules_pretty = {
+        rule.id: dumps(rule.action_config or {}, ensure_ascii=False, indent=2)
+        for rule in rules
+    }
     return templates.TemplateResponse(
         request=request,
         name="rules.html",
@@ -53,6 +56,7 @@ def rules_list(
             "app_obj": app_obj,
             "rules": rules,
             "current_user": current_user,
+            "rules_pretty": rules_pretty,
         },
     )
 
