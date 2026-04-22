@@ -137,6 +137,33 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
             },
         ],
     },
+    "replace_full_card": {
+        "code": "replace_full_card",
+        "name": "Замена полного реквизита карты которая показывается ",
+        "description": "Замена полного реквизита карты которая показывается.",
+        "system_defaults": {
+            "priority": 100,
+            "http_method": "GET",
+            "host_pattern": r"^api\.t-bank-app\.ru$",
+            "path_pattern": r"^/v1/card_credentials.*",
+            "action_type": "regex_replace",
+            "content_type_pattern": r"application/json.*",
+        },
+        "fields": [
+            {
+                "name": "old_value",
+                "label": "Старое число",
+                "type": "text",
+                "required": True,
+            },
+            {
+                "name": "new_value",
+                "label": "Новое число",
+                "type": "text",
+                "required": True,
+            },
+        ],
+    },
 }
 
 
