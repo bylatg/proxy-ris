@@ -140,6 +140,10 @@
                                         </div>
 
                                         <div class="flex gap-2 flex-wrap">
+                                            <a href="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/edit-config" class="btn btn-sm btn-primary btn-outline">
+                                                Изменить config
+                                            </a>
+
                                             <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/toggle">
                                                 <button type="submit" class="btn btn-sm btn-outline">
                                                     {% if rule.enabled %}Выключить{% else %}Включить{% endif %}
@@ -151,28 +155,6 @@
                                                     Удалить
                                                 </button>
                                             </form>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 text-sm">
-                                        <div>
-                                            <div class="opacity-60 mb-1">HTTP method</div>
-                                            <div class="font-mono break-all">{{ rule.http_method or "-" }}</div>
-                                        </div>
-
-                                        <div>
-                                            <div class="opacity-60 mb-1">Content-Type pattern</div>
-                                            <div class="font-mono break-all">{{ rule.content_type_pattern or "-" }}</div>
-                                        </div>
-
-                                        <div>
-                                            <div class="opacity-60 mb-1">Host pattern</div>
-                                            <div class="font-mono break-all">{{ rule.host_pattern or "-" }}</div>
-                                        </div>
-
-                                        <div>
-                                            <div class="opacity-60 mb-1">Path pattern</div>
-                                            <div class="font-mono break-all">{{ rule.path_pattern or "-" }}</div>
                                         </div>
                                     </div>
 

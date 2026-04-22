@@ -1,4 +1,4 @@
-from json import loads
+from json import loads, dumps
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse
@@ -97,6 +97,64 @@ def create_rule(
         action_config=action_config,
     )
     db.add(rule)
+    db.commit()
+
+    return RedirectResponse(url=f"/apps/{app_id}/rules/", status_code=303)
+
+
+@router.get("/{rule_id}/edit-config", response_class=HTMLResponse)
+def edit_rule_config_form(
+    app_id: int,
+    rule_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    app_obj = get_app_or_404(db, app_id)
+    ensure_access(app_obj, current_user)
+
+    rule = db.scalar(
+        select(Rule).where(Rule.id == rule_id, Rule.app_id == app_id)
+    )
+    if not rule:
+        raise HTTPException(status_code=404, detail="Rule not found")
+
+    return templates.TemplateResponse(
+        request=request,
+        name="rule_edit_config.html",
+        context={
+            "app_obj": app_obj,
+            "rule": rule,
+            "action_config_pretty": dumps(rule.action_config or {}, ensure_ascii=False, indent=2),
+        },
+    )
+
+
+@router.post("/{rule_id}/edit-config")
+def edit_rule_config_submit(
+    app_id: int,
+    rule_id: int,
+    action_config_json: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    app_obj = get_app_or_404(db, app_id)
+    ensure_access(app_obj, current_user)
+
+    rule = db.scalar(
+        select(Rule).where(Rule.id == rule_id, Rule.app_id == app_id)
+    )
+    if not rule:
+        raise HTTPException(status_code=404, detail="Rule not found")
+
+    try:
+        action_config = loads(action_config_json)
+        if not isinstance(action_config, dict):
+            raise ValueError("action_config_json must be a JSON object")
+    except Exception as e:
+        return PlainTextResponse(f"Invalid action_config_json: {e}", status_code=400)
+
+    rule.action_config = action_config
     db.commit()
 
     return RedirectResponse(url=f"/apps/{app_id}/rules/", status_code=303)

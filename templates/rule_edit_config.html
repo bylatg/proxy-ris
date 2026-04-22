@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Изменить config | TradeCode{% endblock %}
+
+{% block body %}
+<div class="max-w-3xl mx-auto p-4 space-y-6">
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="text-sm opacity-60">Редактирование config</div>
+            <h1 class="text-2xl font-bold">{{ rule.name }}</h1>
+            <div class="text-sm opacity-70 mt-1">
+                rule id: {{ rule.id }} · {{ rule.action_type }}
+            </div>
+        </div>
+
+        <div class="flex gap-2 flex-wrap">
+            <a href="/apps/{{ app_obj.id }}/rules/" class="btn btn-outline btn-sm">Назад к правилам</a>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/edit-config" class="space-y-4">
+                <div>
+                    <label class="label">
+                        <span class="label-text">Action config JSON</span>
+                    </label>
+                    <textarea
+                        name="action_config_json"
+                        rows="18"
+                        class="textarea textarea-bordered w-full font-mono text-sm"
+                        required
+                    >{{ action_config_pretty }}</textarea>
+                </div>
+
+                <div class="flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-primary">
+                        Сохранить
+                    </button>
+                    <a href="/apps/{{ app_obj.id }}/rules/" class="btn btn-outline">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
