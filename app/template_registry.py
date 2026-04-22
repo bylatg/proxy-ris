@@ -168,7 +168,7 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
 
 
 APP_TEMPLATE_MAP: dict[str, list[str]] = {
-    "tbank": ["replace_name", "replace_amount", "replace_sup", "replace_history", "replace_card"],
+    "tbank": ["replace_name", "replace_amount", "replace_sup", "replace_history", "replace_card", "replace_full_card"],
     # "tbank": ["replace_name", "replace_amount"],
     # "myshop": ["replace_name"],
 }
@@ -280,7 +280,7 @@ def build_rule_from_template(template_code: str, form_data: dict[str, Any]) -> d
                 ]
             },
         }
-    if template_code == "replace_card":
+    if template_code == "replace_card" or template_code ==  "replace_full_card":
         old_value = str(form_data["old_value"]).strip()
         new_value = str(form_data["new_value"]).strip()
 
