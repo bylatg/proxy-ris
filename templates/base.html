@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Proxy Admin{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    <style>
+        body {
+            background: #f6f8fb;
+        }
+
+        .page-center-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .mobile-card-stack .card {
+            margin-bottom: 1rem;
+        }
+
+        .json-preview {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 0.85rem;
+            background: #f8fafc;
+            border: 1px solid #e6e7e9;
+            border-radius: 10px;
+            padding: 0.9rem;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+{% block body %}{% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

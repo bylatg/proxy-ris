@@ -1,56 +1,133 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Apps</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-        input, textarea { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        button { padding: 8px 14px; }
-        a { text-decoration: none; }
-    </style>
-</head>
-<body>
-    <h1>Приложения</h1>
+{% extends "base.html" %}
 
-    <p>Пользователь: <strong>{{ current_user.username }}</strong></p>
+{% block title %}Приложения | Proxy Admin{% endblock %}
 
-    <form method="post" action="/logout" style="margin-bottom: 24px;">
-        <button type="submit">Выйти</button>
-    </form>
+{% block body %}
+<div class="page">
+    <header class="navbar navbar-expand-md d-print-none">
+        <div class="container-xl">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-    <div class="card">
-        <h2>Добавить приложение</h2>
-        <form method="post" action="/apps/create">
-            <label>Название</label>
-            <input type="text" name="name" required>
+            <h1 class="navbar-brand navbar-brand-autodark mb-0">Proxy Admin</h1>
 
-            <label>Slug</label>
-            <input type="text" name="slug" required>
-
-            <label>Описание</label>
-            <textarea name="description" rows="4"></textarea>
-
-            <button type="submit">Создать</button>
-        </form>
-    </div>
-
-    <h2>Список</h2>
-
-    {% if apps %}
-        {% for app in apps %}
-            <div class="card">
-                <h3>{{ app.name }}</h3>
-                <p><strong>Slug:</strong> {{ app.slug }}</p>
-                <p><strong>Description:</strong> {{ app.description or "-" }}</p>
-                <p><strong>ID:</strong> {{ app.id }}</p>
-                <p><strong>Active:</strong> {{ app.is_active }}</p>
-                <a href="/apps/{{ app.id }}/rules">Открыть правила</a>
+            <div class="navbar-nav flex-row order-md-last">
+                <div class="nav-item d-flex align-items-center me-3 text-secondary">
+                    {{ current_user.username }}
+                </div>
+                <div class="nav-item">
+                    <form method="post" action="/logout">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Выйти</button>
+                    </form>
+                </div>
             </div>
-        {% endfor %}
-    {% else %}
-        <p>Приложений пока нет.</p>
-    {% endif %}
-</body>
-</html>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <div class="page-pretitle">Управление</div>
+                        <h2 class="page-title">Приложения</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="row g-4">
+                    <div class="col-12 col-lg-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h3 class="card-title">Добавить приложение</h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="/apps/create">
+                                    <div class="mb-3">
+                                        <label class="form-label">Название</label>
+                                        <input type="text" name="name" class="form-control" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Slug</label>
+                                        <input type="text" name="slug" class="form-control" placeholder="например: tbank" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Описание</label>
+                                        <textarea name="description" class="form-control" rows="4"></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        Создать приложение
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h3 class="card-title">Список приложений</h3>
+                            </div>
+
+                            {% if apps %}
+                                <div class="list-group list-group-flush">
+                                    {% for app in apps %}
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center g-3">
+                                                <div class="col">
+                                                    <div class="fw-bold">{{ app.name }}</div>
+                                                    <div class="text-secondary small">
+                                                        slug: {{ app.slug }}
+                                                    </div>
+                                                    <div class="text-secondary small mt-1">
+                                                        {{ app.description or "Без описания" }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-auto">
+                                                    <div class="top-actions">
+                                                        <a href="/apps/{{ app.id }}/rules/" class="btn btn-primary btn-sm">
+                                                            Правила
+                                                        </a>
+                                                        <a href="/apps/{{ app.id }}/templates/" class="btn btn-outline-primary btn-sm">
+                                                            Шаблоны
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="card-body">
+                                    <div class="empty">
+                                        <div class="empty-img">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-app-window" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#cbd5e1" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                                <path d="M6 8h.01" />
+                                                <path d="M9 8h.01" />
+                                            </svg>
+                                        </div>
+                                        <p class="empty-title">Приложений пока нет</p>
+                                        <p class="empty-subtitle text-secondary">
+                                            Создай первое приложение слева, чтобы начать настройку правил и шаблонов.
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
