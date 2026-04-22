@@ -8,7 +8,7 @@ from app.security import hash_password
 def main():
     db = SessionLocal()
     try:
-        existing = db.scalar(select(User).where(User.username == "admin"))
+        existing = db.scalar(select(User).where(User.username == "Dimas"))
         if existing:
             print("User already exists")
             return
