@@ -1,32 +1,59 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>{{ template_item.name }}</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 24px; }
-    input, textarea { width: 100%; padding: 8px; margin-bottom: 12px; box-sizing: border-box; }
-    button { padding: 8px 14px; }
-  </style>
-</head>
-<body>
-  <p><a href="/apps/{{ app_obj.id }}/templates/">← Назад к шаблонам</a></p>
+{% extends "base.html" %}
 
-  <h1>{{ template_item.name }}</h1>
-  <p>{{ template_item.description }}</p>
+{% block title %}{{ template_item.name }} | TradeCode{% endblock %}
 
-  <form method="post" action="/apps/{{ app_obj.id }}/templates/{{ template_item.code }}/create">
-    {% for field in template_item.fields %}
-      <label>{{ field.label }}</label>
-      <input
-        type="text"
-        name="{{ field.name }}"
-        value="{{ field.default if field.default is defined else '' }}"
-        {% if field.required %}required{% endif %}
-      >
-    {% endfor %}
+{% block body %}
+<div class="max-w-3xl mx-auto p-4 space-y-6">
 
-    <button type="submit">Создать правило</button>
-  </form>
-</body>
-</html>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="text-sm opacity-60">Шаблон</div>
+            <h1 class="text-2xl font-bold">{{ template_item.name }}</h1>
+            <div class="text-sm opacity-70 mt-1">{{ template_item.description }}</div>
+        </div>
+
+        <div class="flex gap-2 flex-wrap">
+            <a href="/apps/{{ app_obj.id }}/templates/" class="btn btn-outline btn-sm">Назад</a>
+            <a href="/apps/{{ app_obj.id }}/rules/" class="btn btn-ghost btn-sm">Правила</a>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <form method="post" action="/apps/{{ app_obj.id }}/templates/{{ template_item.code }}/create" class="space-y-4">
+                {% for field in template_item.fields %}
+                    <div>
+                        <label class="label">
+                            <span class="label-text">{{ field.label }}</span>
+                        </label>
+
+                        {% if field.type == "textarea" %}
+                            <textarea
+                                name="{{ field.name }}"
+                                class="textarea textarea-bordered w-full"
+                                rows="5"
+                                {% if field.required %}required{% endif %}
+                            >{{ field.default if field.default is defined else '' }}</textarea>
+                        {% else %}
+                            <input
+                                type="text"
+                                name="{{ field.name }}"
+                                value="{{ field.default if field.default is defined else '' }}"
+                                class="input input-bordered w-full"
+                                {% if field.required %}required{% endif %}
+                            >
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="pt-2">
+                    <button type="submit" class="btn btn-primary w-full sm:w-auto">
+                        Создать правило из шаблона
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

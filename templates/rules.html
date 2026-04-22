@@ -1,72 +1,95 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Rules</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-        input, textarea, select { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        button { padding: 8px 14px; }
-        pre {
-            background: #f5f5f5;
-            padding: 12px;
-            border-radius: 8px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        a { text-decoration: none; }
-    </style>
-</head>
-<body>
-    <p><a href="/apps/">← Назад к приложениям</a></p>
-    <p>
-  <a href="/apps/{{ app_obj.id }}/templates/">Шаблоны правил</a>
-</p>
-    <h1>Правила приложения: {{ app_obj.name }}</h1>
-    <p><strong>Slug:</strong> {{ app_obj.slug }}</p>
-    <p><strong>Description:</strong> {{ app_obj.description or "-" }}</p>
+{% extends "base.html" %}
 
-    <div class="card">
-        <h2>Добавить правило</h2>
-        <form method="post" action="/apps/{{ app_obj.id }}/rules/create">
-            <label>Name</label>
-            <input type="text" name="name" required>
+{% block title %}Правила | TradeCode{% endblock %}
 
-            <label>Description</label>
-            <textarea name="description" rows="3"></textarea>
+{% block body %}
+<div class="max-w-6xl mx-auto p-4 space-y-6">
 
-            <label>Enabled</label>
-            <select name="enabled">
-                <option value="true" selected>true</option>
-                <option value="false">false</option>
-            </select>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="text-sm opacity-60">Приложение</div>
+            <h1 class="text-2xl font-bold">{{ app_obj.name }}</h1>
+            <div class="text-sm opacity-70 mt-1">
+                slug: {{ app_obj.slug }}
+            </div>
+            {% if app_obj.description %}
+            <div class="text-sm mt-2">{{ app_obj.description }}</div>
+            {% endif %}
+        </div>
 
-            <label>Priority</label>
-            <input type="number" name="priority" value="100" required>
+        <div class="flex gap-2 flex-wrap">
+            <a href="/apps/" class="btn btn-outline btn-sm">Назад</a>
+            <a href="/apps/{{ app_obj.id }}/templates/" class="btn btn-primary btn-sm">Шаблоны</a>
+        </div>
+    </div>
 
-            <label>HTTP method</label>
-            <input type="text" name="http_method" placeholder="GET">
+    <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+        <div class="xl:col-span-2">
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Создать своё правило</h2>
+                    <p class="text-sm opacity-70">
+                        Ручная настройка правила через regex/json/mock.
+                    </p>
 
-            <label>Host pattern</label>
-            <input type="text" name="host_pattern" placeholder="^api\.example\.com$">
+                    <form method="post" action="/apps/{{ app_obj.id }}/rules/create" class="space-y-3 mt-3">
+                        <div>
+                            <label class="label"><span class="label-text">Название</span></label>
+                            <input type="text" name="name" class="input input-bordered w-full" required>
+                        </div>
 
-            <label>Path pattern</label>
-            <input type="text" name="path_pattern" placeholder="^/v1/profile">
+                        <div>
+                            <label class="label"><span class="label-text">Описание</span></label>
+                            <textarea name="description" class="textarea textarea-bordered w-full" rows="3"></textarea>
+                        </div>
 
-            <label>Content-Type pattern</label>
-            <input type="text" name="content_type_pattern" placeholder="application/json">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="label"><span class="label-text">Включено</span></label>
+                                <select name="enabled" class="select select-bordered w-full">
+                                    <option value="true" selected>true</option>
+                                    <option value="false">false</option>
+                                </select>
+                            </div>
 
-            <label>Action type</label>
-            <select name="action_type">
-                <option value="regex_replace">regex_replace</option>
-                <option value="json_update">json_update</option>
-                <option value="mock_response">mock_response</option>
-            </select>
+                            <div>
+                                <label class="label"><span class="label-text">Priority</span></label>
+                                <input type="number" name="priority" value="100" class="input input-bordered w-full" required>
+                            </div>
+                        </div>
 
-            <label>Action config JSON</label>
-            <textarea name="action_config_json" rows="12">{
+                        <div>
+                            <label class="label"><span class="label-text">HTTP method</span></label>
+                            <input type="text" name="http_method" placeholder="GET / POST / пусто = любой" class="input input-bordered w-full">
+                        </div>
+
+                        <div>
+                            <label class="label"><span class="label-text">Host pattern</span></label>
+                            <input type="text" name="host_pattern" placeholder="^api\.example\.com$" class="input input-bordered w-full">
+                        </div>
+
+                        <div>
+                            <label class="label"><span class="label-text">Path pattern</span></label>
+                            <input type="text" name="path_pattern" placeholder="^/v1/profile$" class="input input-bordered w-full">
+                        </div>
+
+                        <div>
+                            <label class="label"><span class="label-text">Content-Type pattern</span></label>
+                            <input type="text" name="content_type_pattern" placeholder="application/json.*" class="input input-bordered w-full">
+                        </div>
+
+                        <div>
+                            <label class="label"><span class="label-text">Action type</span></label>
+                            <select name="action_type" class="select select-bordered w-full">
+                                <option value="regex_replace">regex_replace</option>
+                                <option value="json_update">json_update</option>
+                                <option value="mock_response">mock_response</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="label"><span class="label-text">Action config JSON</span></label>
+                            <textarea name="action_config_json" rows="12" class="textarea textarea-bordered w-full font-mono text-sm">{
   "replacements": [
     {
       "pattern": "\"status\":\\s*\"OK\"",
@@ -74,43 +97,102 @@
     }
   ]
 }</textarea>
+                        </div>
 
-            <button type="submit">Создать правило</button>
-        </form>
+                        <button type="submit" class="btn btn-primary w-full">Создать правило</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="xl:col-span-3">
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <div class="flex items-center justify-between">
+                        <h2 class="card-title">Список правил</h2>
+                        <div class="badge badge-outline">{{ rules|length }}</div>
+                    </div>
+
+                    {% if rules %}
+                        <div class="space-y-4 mt-2">
+                            {% for rule in rules %}
+                            <div class="card bg-base-200 border border-base-300">
+                                <div class="card-body p-4">
+                                    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <h3 class="font-semibold text-lg break-all">{{ rule.name }}</h3>
+
+                                                {% if rule.enabled %}
+                                                    <span class="badge badge-success badge-sm">enabled</span>
+                                                {% else %}
+                                                    <span class="badge badge-ghost badge-sm">disabled</span>
+                                                {% endif %}
+
+                                                <span class="badge badge-outline badge-sm">id {{ rule.id }}</span>
+                                                <span class="badge badge-outline badge-sm">priority {{ rule.priority }}</span>
+                                                <span class="badge badge-primary badge-sm">{{ rule.action_type }}</span>
+                                            </div>
+
+                                            {% if rule.description %}
+                                            <p class="text-sm opacity-70 mt-2">{{ rule.description }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="flex gap-2 flex-wrap">
+                                            <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/toggle">
+                                                <button type="submit" class="btn btn-sm btn-outline">
+                                                    {% if rule.enabled %}Выключить{% else %}Включить{% endif %}
+                                                </button>
+                                            </form>
+
+                                            <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/delete">
+                                                <button type="submit" class="btn btn-sm btn-error btn-outline" onclick="return confirm('Удалить правило?')">
+                                                    Удалить
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 text-sm">
+                                        <div>
+                                            <div class="opacity-60 mb-1">HTTP method</div>
+                                            <div class="font-mono break-all">{{ rule.http_method or "-" }}</div>
+                                        </div>
+
+                                        <div>
+                                            <div class="opacity-60 mb-1">Content-Type pattern</div>
+                                            <div class="font-mono break-all">{{ rule.content_type_pattern or "-" }}</div>
+                                        </div>
+
+                                        <div>
+                                            <div class="opacity-60 mb-1">Host pattern</div>
+                                            <div class="font-mono break-all">{{ rule.host_pattern or "-" }}</div>
+                                        </div>
+
+                                        <div>
+                                            <div class="opacity-60 mb-1">Path pattern</div>
+                                            <div class="font-mono break-all">{{ rule.path_pattern or "-" }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <div class="opacity-60 text-sm mb-2">Action config</div>
+                                        <pre class="bg-base-100 border border-base-300 rounded-xl p-3 text-xs overflow-x-auto">{{ rule.action_config | tojson(indent=2) }}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-10 opacity-70">
+                            Правил пока нет. Создай первое правило вручную или через шаблоны.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
-    <h2>Список правил</h2>
-
-    {% if rules %}
-        {% for rule in rules %}
-            <div class="card">
-                <h3>{{ rule.name }}</h3>
-                <p><strong>ID:</strong> {{ rule.id }}</p>
-                <p><strong>Enabled:</strong> {{ rule.enabled }}</p>
-                <p><strong>Priority:</strong> {{ rule.priority }}</p>
-                <p><strong>Method:</strong> {{ rule.http_method or "-" }}</p>
-                <p><strong>Host pattern:</strong> {{ rule.host_pattern or "-" }}</p>
-                <p><strong>Path pattern:</strong> {{ rule.path_pattern or "-" }}</p>
-                <p><strong>Content-Type pattern:</strong> {{ rule.content_type_pattern or "-" }}</p>
-                <p><strong>Action type:</strong> {{ rule.action_type }}</p>
-                <p><strong>Description:</strong> {{ rule.description or "-" }}</p>
-
-                <h4>Action config</h4>
-                <pre>{{ rule.action_config | tojson(indent=2) }}</pre>
-
-                <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/toggle" style="display:inline;">
-                    <button type="submit">
-                        {% if rule.enabled %}Выключить{% else %}Включить{% endif %}
-                    </button>
-                </form>
-
-                <form method="post" action="/apps/{{ app_obj.id }}/rules/{{ rule.id }}/delete" style="display:inline;">
-                    <button type="submit" onclick="return confirm('Удалить правило?')">Удалить</button>
-                </form>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>Правил пока нет.</p>
-    {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}
