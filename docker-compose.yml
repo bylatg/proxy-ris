@@ -61,13 +61,13 @@ services:
         soft: 65536
         hard: 65536
     command: >
-      mitmweb
+      mitmdump
       --set block_global=false
       --set listen_host=0.0.0.0
       --set listen_port=8080
-      --set web_host=0.0.0.0
-      --set web_port=8081
-      --set web_password=RabotaAdmin123
+      --set console_eventlog_verbosity=error
+      --set termlog_verbosity=error
+      --set allow_hosts='^(.+\.)?t-bank-app\.(ru|com):(443|80)$'
       -s /home/mitmproxy/project/proxy_addon.py
 
 volumes:

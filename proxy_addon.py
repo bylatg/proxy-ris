@@ -253,6 +253,8 @@ def apply_mock_response(flow, action_config: dict[str, Any]) -> bool:
 
 
 def response(flow):
+    # return
+
     if flow.response is None:
         return
 
