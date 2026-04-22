@@ -1,133 +1,40 @@
 {% extends "base.html" %}
 
-{% block title %}Приложения | Proxy Admin{% endblock %}
-
 {% block body %}
-<div class="page">
-    <header class="navbar navbar-expand-md d-print-none">
-        <div class="container-xl">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<div class="max-w-5xl mx-auto p-4">
 
-            <h1 class="navbar-brand navbar-brand-autodark mb-0">Proxy Admin</h1>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl font-bold">Приложения</h1>
 
-            <div class="navbar-nav flex-row order-md-last">
-                <div class="nav-item d-flex align-items-center me-3 text-secondary">
-                    {{ current_user.username }}
-                </div>
-                <div class="nav-item">
-                    <form method="post" action="/logout">
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Выйти</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="page-wrapper">
-        <div class="page-header d-print-none">
-            <div class="container-xl">
-                <div class="row g-2 align-items-center">
-                    <div class="col">
-                        <div class="page-pretitle">Управление</div>
-                        <h2 class="page-title">Приложения</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="page-body">
-            <div class="container-xl">
-                <div class="row g-4">
-                    <div class="col-12 col-lg-4">
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h3 class="card-title">Добавить приложение</h3>
-                            </div>
-                            <div class="card-body">
-                                <form method="post" action="/apps/create">
-                                    <div class="mb-3">
-                                        <label class="form-label">Название</label>
-                                        <input type="text" name="name" class="form-control" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Slug</label>
-                                        <input type="text" name="slug" class="form-control" placeholder="например: tbank" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Описание</label>
-                                        <textarea name="description" class="form-control" rows="4"></textarea>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        Создать приложение
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-8">
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h3 class="card-title">Список приложений</h3>
-                            </div>
-
-                            {% if apps %}
-                                <div class="list-group list-group-flush">
-                                    {% for app in apps %}
-                                        <div class="list-group-item">
-                                            <div class="row align-items-center g-3">
-                                                <div class="col">
-                                                    <div class="fw-bold">{{ app.name }}</div>
-                                                    <div class="text-secondary small">
-                                                        slug: {{ app.slug }}
-                                                    </div>
-                                                    <div class="text-secondary small mt-1">
-                                                        {{ app.description or "Без описания" }}
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12 col-md-auto">
-                                                    <div class="top-actions">
-                                                        <a href="/apps/{{ app.id }}/rules/" class="btn btn-primary btn-sm">
-                                                            Правила
-                                                        </a>
-                                                        <a href="/apps/{{ app.id }}/templates/" class="btn btn-outline-primary btn-sm">
-                                                            Шаблоны
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <div class="card-body">
-                                    <div class="empty">
-                                        <div class="empty-img">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-app-window" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#cbd5e1" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                <path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-                                                <path d="M6 8h.01" />
-                                                <path d="M9 8h.01" />
-                                            </svg>
-                                        </div>
-                                        <p class="empty-title">Приложений пока нет</p>
-                                        <p class="empty-subtitle text-secondary">
-                                            Создай первое приложение слева, чтобы начать настройку правил и шаблонов.
-                                        </p>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <form method="post" action="/logout">
+            <button class="btn btn-sm btn-outline">Выйти</button>
+        </form>
     </div>
+
+    <!-- Apps list -->
+    <div class="space-y-3">
+        {% for app in apps %}
+        <div class="card bg-base-100 shadow">
+            <div class="card-body">
+
+                <div class="flex justify-between items-start gap-3">
+                    <div>
+                        <div class="font-semibold text-lg">{{ app.name }}</div>
+                        <div class="text-sm opacity-70">slug: {{ app.slug }}</div>
+                        <div class="text-sm mt-1">{{ app.description or "Без описания" }}</div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mt-3 flex-wrap">
+                    <a href="/apps/{{ app.id }}/templates/" class="btn btn-outline btn-sm">Шаблоны</a>
+                    <a href="/apps/{{ app.id }}/rules/" class="btn btn-primary btn-sm">Правила</a>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
 {% endblock %}

@@ -1,55 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Вход | Proxy Admin{% endblock %}
-
 {% block body %}
-<div class="page page-center">
-    <div class="page-center-wrap">
-        <div class="container-tight py-4">
-            <div class="text-center mb-4">
-                <h1 class="navbar-brand navbar-brand-autodark">Proxy Admin</h1>
-                <div class="text-secondary">Вход в админку</div>
-            </div>
+<div class="flex items-center justify-center min-h-screen px-4">
+    <div class="card w-full max-w-md bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="text-2xl font-bold text-center">Proxy Admin</h2>
+            <p class="text-center text-sm opacity-70">Вход</p>
 
-            <div class="card card-md shadow-sm">
-                <div class="card-body">
-                    <h2 class="h2 text-center mb-4">Авторизация</h2>
+            <form method="post" action="/login" class="space-y-4 mt-4">
+                <input name="username" placeholder="Логин" class="input input-bordered w-full" required>
+                <input type="password" name="password" placeholder="Пароль" class="input input-bordered w-full" required>
 
-                    <form method="post" action="/login" autocomplete="off" novalidate>
-                        <div class="mb-3">
-                            <label class="form-label">Логин</label>
-                            <input
-                                type="text"
-                                name="username"
-                                class="form-control"
-                                placeholder="Введите логин"
-                                required
-                            >
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Пароль</label>
-                            <input
-                                type="password"
-                                name="password"
-                                class="form-control"
-                                placeholder="Введите пароль"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-footer">
-                            <button type="submit" class="btn btn-primary w-100">
-                                Войти
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="text-center text-secondary mt-3">
-                Управление приложениями, правилами и шаблонами
-            </div>
+                <button class="btn btn-primary w-full">Войти</button>
+            </form>
         </div>
     </div>
 </div>
